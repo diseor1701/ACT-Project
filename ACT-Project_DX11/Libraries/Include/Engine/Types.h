@@ -23,3 +23,13 @@ using Ray = DirectX::SimpleMath::Ray;
 
 // MeshID / MaterialID
 using InstanceID = std::pair<uint64, uint64>;
+
+enum class AnimationState
+{
+	Idle,
+	Walk,
+	Run,
+	Attack,
+	Jump,
+	// 다른 상태 추가 가능
+};

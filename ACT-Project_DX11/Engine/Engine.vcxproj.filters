@@ -258,6 +258,9 @@
     <ClInclude Include="SnowBillboard.h">
       <Filter>06. UI &amp; Effect</Filter>
     </ClInclude>
+    <ClInclude Include="AnimationStateMachine.h">
+      <Filter>00. Engine\Resource\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -451,6 +454,9 @@
     </ClCompile>
     <ClCompile Include="SnowBillboard.cpp">
       <Filter>06. UI &amp; Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationStateMachine.cpp">
+      <Filter>00. Engine\Resource\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

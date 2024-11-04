@@ -41,17 +41,17 @@ void AssimpTool::Init()
 	{
 		shared_ptr<Converter> converter = make_shared<Converter>();
 		converter->ReadAssetFile(L"Player/Crab_Idle.fbx");
-		converter->ExportAnimationData(L"Player/Crab_Idle");
+		converter->ExportAnimationData(L"Player/Idle");
 	}
 	{
 		shared_ptr<Converter> converter = make_shared<Converter>();
 		converter->ReadAssetFile(L"Player/Crab_Walk.fbx");
-		converter->ExportAnimationData(L"Player/Crab_Walk");
+		converter->ExportAnimationData(L"Player/Walk");
 	}
 	{
 		shared_ptr<Converter> converter = make_shared<Converter>();
 		converter->ReadAssetFile(L"Player/Crab_Run.fbx");
-		converter->ExportAnimationData(L"Player/Crab_Run");
+		converter->ExportAnimationData(L"Player/Run");
 	}
 	{
 		shared_ptr<Converter> converter = make_shared<Converter>();

@@ -94,16 +94,16 @@ void SnowDemo::Init()
 		player->GetOrAddTransform()->SetPosition(Vec3(0, 0, 0));
 		player->GetOrAddTransform()->SetLocalRotation(Vec3(0, XMConvertToRadians(180), 0));
 		player->GetOrAddTransform()->SetScale(Vec3(0.01f));
-		player->AddComponent(make_shared<PlayerScript>());
-		shared_ptr<class Model> m1 = make_shared<Model>();
+
+		shared_ptr<Model> m1 = make_shared<Model>();
 		// Model
 		{
 			m1->ReadModel(L"Player/Player");
 			m1->ReadMaterial(L"Player/Player");
 
-			m1->ReadAnimation(L"Player/Crab_Idle");
-			m1->ReadAnimation(L"Player/Crab_Walk");
-			m1->ReadAnimation(L"Player/Crab_Run");
+			m1->ReadAnimation(L"Player/Idle", AnimationState::Idle);
+			m1->ReadAnimation(L"Player/Walk", AnimationState::Walk);
+			m1->ReadAnimation(L"Player/Run", AnimationState::Run);
 
 			//m1->ReadAnimation(L"Player/Crab_Atk_Combo1");
 			//m1->ReadAnimation(L"Player/Crab_Atk_Combo2");
@@ -113,12 +113,19 @@ void SnowDemo::Init()
 			//m1->ReadAnimation(L"Player/Crab_Death");
 			//m1->ReadAnimation(L"Player/Crab_GetUp");
 		}
-
-		player->AddComponent(make_shared<ModelAnimator>(_renderShader));
+		shared_ptr<ModelAnimator> ma1 = make_shared<ModelAnimator>(_renderShader);
+		player->AddComponent(ma1);
 		{
 			player->GetModelAnimator()->SetModel(m1);
 			player->GetModelAnimator()->SetPass(2);
 		}
+
+		// PlayerScript
+		shared_ptr<PlayerScript> playerScript = make_shared<PlayerScript>();
+		playerScript->SetPlayer(m1);
+		playerScript->SetModelAnimator(ma1);
+		player->AddComponent(playerScript);
+
 		CUR_SCENE->Add(player);
 		CUR_SCENE->SetPlayer(player);
 	}

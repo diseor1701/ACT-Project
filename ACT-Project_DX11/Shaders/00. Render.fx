@@ -133,7 +133,8 @@ matrix GetAnimationMatrix(InstancingVertexModel input)
 {
 	float indices[4] = { input.blendIndices.x, input.blendIndices.y, input.blendIndices.z, input.blendIndices.w };
 	float weights[4] = { input.blendWeights.x, input.blendWeights.y, input.blendWeights.z, input.blendWeights.w };
-
+	
+	// 현재 애니메이션 상태에 대한 정보
 	int animIndex[2];
 	int currFrame[2];
 	int nextFrame[2];
@@ -148,28 +149,31 @@ matrix GetAnimationMatrix(InstancingVertexModel input)
     currFrame[1] = InstancedTweenFrames[input.instanceID].next.currFrame;
     nextFrame[1] = InstancedTweenFrames[input.instanceID].next.nextFrame;
     ratio[1] = InstancedTweenFrames[input.instanceID].next.ratio;
+	
+    float4 c0, c1, c2, c3; // 현재 프레임의 변환 컴포넌트
+    float4 n0, n1, n2, n3; // 다음 프레임의 변환 컴포넌트
+    matrix curr = 0; // 현재 프레임의 변환 행렬
+    matrix next = 0; // 다음 프레임의 변환 행렬
+    matrix transform = 0; // 최종 계산된 변환 행렬
 
-	float4 c0, c1, c2, c3;
-	float4 n0, n1, n2, n3;
-	matrix curr = 0;
-	matrix next = 0;
-	matrix transform = 0;
-
+	// 각 본에 대해 변환 행렬을 계산
 	for (int i = 0; i < 4; i++)
 	{
+		// 현재 프레임의 변환 컴포넌트 로드
 		c0 = TransformMap.Load(int4(indices[i] * 4 + 0, currFrame[0], animIndex[0], 0));
 		c1 = TransformMap.Load(int4(indices[i] * 4 + 1, currFrame[0], animIndex[0], 0));
 		c2 = TransformMap.Load(int4(indices[i] * 4 + 2, currFrame[0], animIndex[0], 0));
 		c3 = TransformMap.Load(int4(indices[i] * 4 + 3, currFrame[0], animIndex[0], 0));
-		curr = matrix(c0, c1, c2, c3);
+		curr = matrix(c0, c1, c2, c3);	// 현재 프레임의 변환 행렬 생성
 
+		// 다음 프레임의 변환 컴포넌트 로드
 		n0 = TransformMap.Load(int4(indices[i] * 4 + 0, nextFrame[0], animIndex[0], 0));
 		n1 = TransformMap.Load(int4(indices[i] * 4 + 1, nextFrame[0], animIndex[0], 0));
 		n2 = TransformMap.Load(int4(indices[i] * 4 + 2, nextFrame[0], animIndex[0], 0));
 		n3 = TransformMap.Load(int4(indices[i] * 4 + 3, nextFrame[0], animIndex[0], 0));
-		next = matrix(n0, n1, n2, n3);
+		next = matrix(n0, n1, n2, n3); // 다음 프레임의 변환 행렬 생성
 
-		matrix result = lerp(curr, next, ratio[0]);
+		matrix result = lerp(curr, next, ratio[0]); // 현재와 다음 프레임 사이 보간
 
 		// 다음 애니메이션
 		if (animIndex[1] >= 0)
@@ -190,10 +194,10 @@ matrix GetAnimationMatrix(InstancingVertexModel input)
             result = lerp(result, nextResult, InstancedTweenFrames[input.instanceID].tweenRatio);
         }
 
-		transform += mul(weights[i], result);
+		transform += mul(weights[i], result); // 가중치 적용하여 변환 행렬 누적
 	}
 
-	return transform;
+	return transform; // 최종 변환 행렬 반환
 }
 
 MeshOutput VS_InstancingAnimation(InstancingVertexModel input)
@@ -202,17 +206,17 @@ MeshOutput VS_InstancingAnimation(InstancingVertexModel input)
 
 	//output.position = mul(input.position, BoneTransforms[BoneIndex]); // Model Global
 
-	matrix m = GetAnimationMatrix(input);
+	matrix m = GetAnimationMatrix(input);	// 애니메이션 변환 행렬 계산
 
-	output.position = mul(input.position, m);
-	output.position = mul(output.position, input.world); // W
-	output.worldPosition = output.position;
-	output.position = mul(output.position, VP);
-	output.uv = input.uv;
-	output.normal = mul(input.normal, (float3x3)input.world);
-	output.tangent = mul(input.tangent, (float3x3)input.world);
+	output.position = mul(input.position, m);	// 정점 위치 변환
+	output.position = mul(output.position, input.world); // 월드 변환 적용
+	output.worldPosition = output.position;	// 월드 좌표 설정
+	output.position = mul(output.position, VP);	// 뷰-프로젝션 변환 적용
+	output.uv = input.uv;	// UV 좌표는 변경 없음
+	output.normal = mul(input.normal, (float3x3)input.world);	// 법선 벡터 변환
+	output.tangent = mul(input.tangent, (float3x3)input.world);	// 탄젠트 벡터 변환
 
-	return output;
+	return output;	// 변환된 정점 데이트 반환
 }
 
 // ************** SingleAnimRender ****************

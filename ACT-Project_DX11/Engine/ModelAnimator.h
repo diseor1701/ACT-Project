@@ -21,6 +21,7 @@ public:
 
 	void SetModel(shared_ptr<Model> model);
 	void SetPass(uint8 pass) { _pass = pass; }
+	void SetAnimationState(AnimationState newState);
 	shared_ptr<Shader> GetShader() { return _shader; }
 
 	virtual void Update() override;
@@ -49,4 +50,3 @@ private:
 	uint8				_pass = 0;
 	shared_ptr<Model>	_model;
 };
-

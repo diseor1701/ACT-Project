@@ -18,6 +18,8 @@ struct ModelAnimation
 {
 	shared_ptr<ModelKeyframe> GetKeyframe(const wstring& name);
 
+	string animationName;
+	AnimationState state = AnimationState::Idle;
 	wstring name;
 	float duration = 0.f;
 	float frameRate = 0.f;

@@ -103,13 +103,14 @@ MeshOutput VS_Model(VertexTextureNormalTangent input)
 
 struct KeyframeDesc
 {
-	int animIndex;
-	uint currFrame;
-	uint nextFrame;
-	float ratio;
-	float sumTime;
-	float speed;
-	float2 padding;
+    int state;			// 4바이트: 애니메이션 상태
+    int animIndex;		// 4바이트: 애니메이션 인덱스
+    uint currFrame;		// 4바이트: 현재 프레임
+    uint nextFrame;		// 4바이트: 다음 프레임
+    float ratio;		// 4바이트: 현재 프레임과 다음 프레임 사이의 보간 비율
+    float sumTime;		// 4바이트: 애니메이션 진행 시간 합계
+    float speed;		// 4바이트: 애니메이션 재생 속도
+    float padding;		// 4바이트: 32바이트로 맞추기 위한 패딩
 };
 
 struct TweenFrameDesc

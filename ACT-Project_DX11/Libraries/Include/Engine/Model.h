@@ -36,7 +36,8 @@ public:
 	shared_ptr<ModelAnimation> GetAnimationByState(AnimationState state);
 	shared_ptr<ModelAnimation> GetAnimationByName(wstring name);
 	int GetAnimationIndexByState(AnimationState state);
-	int FindAnimationIndex(const std::string& animationName);
+	//int FindAnimationIndex(const std::string& animationName);
+	string AnimationStateToString(AnimationState state);
 
 private:
 	void BindCacheInfo();

@@ -49,14 +49,13 @@ struct BoneDesc
 // Animation
 struct KeyframeDesc
 {
-	AnimationState state = AnimationState::Idle;
-
+	int32 state = 0;
 	int32 animIndex = 0;	// 애니메이션 인덱스
 	uint32 currFrame = 0;	// 현재 프레임
 	uint32 nextFrame = 0;	// 다음 프레임
 	float ratio = 0.f;		// 현재 프레임과 다음 프레임 사이의 보간 비율
 	float sumTime = 0.f;	// 애니메이션 진행 시간 합계
-	float speed = 1.f;		// 애니메이션 재생 속도
+	float speed = 1.5f;		// 애니메이션 재생 속도
 	float padding = 0.f; // 32바이트로 맞추기 위한 패딩
 };
 
@@ -70,7 +69,7 @@ struct TweenDesc
 
 	void ClearNextAnim()
 	{
-		next.state = AnimationState::Idle;
+		next.state = -1;
 		next.animIndex = -1;
 		next.currFrame = 0;
 		next.nextFrame = 0;
@@ -79,7 +78,7 @@ struct TweenDesc
 		tweenRatio = 0;
 	}
 
-	float tweenDuration = 1.0f;	// 트윈(중간 상태) 지속 시간
+	float tweenDuration = 0.2f;	// 트윈(중간 상태) 지속 시간
 	float tweenRatio = 0.f;		// 트윈 비율
 	float tweenSumTime = 0.f;	// 트윈 진행 시간 합계
 	float padding = 0.f;		// 패딩

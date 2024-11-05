@@ -224,7 +224,7 @@ void Model::ReadAnimation(wstring filename, AnimationState state)
 
 	shared_ptr<ModelAnimation> animation = make_shared<ModelAnimation>();
 
-	animation->animationName.assign(filename.begin(), filename.end());
+	animation->animationName = AnimationStateToString(state);
 
 	animation->state = state;
 	animation->name = Utils::ToWString(file->Read<string>());
@@ -308,29 +308,55 @@ std::shared_ptr<ModelAnimation> Model::GetAnimationByName(wstring name)
 	return nullptr;
 }
 
-int Model::GetAnimationIndexByState(AnimationState state)
-{
-	switch (state)
-	{
-	case AnimationState::Idle: return FindAnimationIndex("Idle");
-	case AnimationState::Walk: return FindAnimationIndex("Walk");
-	case AnimationState::Run: return FindAnimationIndex("Run");
-	case AnimationState::Attack: return FindAnimationIndex("Attack");
-		// 다른 상태 추가 가능
-	}
-	return -1; // 없는 경우
-}
+//int Model::GetAnimationIndexByState(AnimationState state)
+//{
+//	switch (state)
+//	{
+//	case AnimationState::Idle: return FindAnimationIndex("Idle");
+//	case AnimationState::Walk: return FindAnimationIndex("Walk");
+//	case AnimationState::Run: return FindAnimationIndex("Run");
+//	case AnimationState::Attack: return FindAnimationIndex("Attack");
+//		// 다른 상태 추가 가능
+//	}
+//	return -1; // 없는 경우
+//}
 
-int Model::FindAnimationIndex(const std::string& animationName)
+int Model::GetAnimationIndexByState(AnimationState state)
 {
 	for (size_t i = 0; i < _animations.size(); ++i)
 	{
-		if (_animations[i]->animationName == animationName)
+		if (_animations[i]->state == state)
 		{
 			return static_cast<int>(i); // 인덱스를 정수형으로 반환
 		}
 	}
 	return -1; // 이름에 해당하는 애니메이션이 없는 경우
+}
+//int Model::FindAnimationIndex(AnimationState state)
+//{
+//	for (size_t i = 0; i < _animations.size(); ++i)
+//	{
+//		if (_animations[i]->state == state)
+//		{
+//			return static_cast<int>(i); // 인덱스를 정수형으로 반환
+//		}
+//	}
+//	return -1; // 이름에 해당하는 애니메이션이 없는 경우
+//}
+
+// AnimationState 값을 문자열로 반환
+string Model::AnimationStateToString(AnimationState state)
+{
+	switch (state)
+	{
+	case AnimationState::Idle:   return "Idle";
+	case AnimationState::Walk:   return "Walk";
+	case AnimationState::Run:    return "Run";
+	case AnimationState::Attack: return "Attack";
+	case AnimationState::Jump:   return "Jump";
+		// 다른 상태 추가 가능
+	default: return "Unknown";
+	}
 }
 
 // 모델의 메시와 본에 대한 참조 정보를 바인딩하는 함수

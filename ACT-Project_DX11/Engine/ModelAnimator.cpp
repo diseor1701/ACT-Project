@@ -11,9 +11,7 @@
 ModelAnimator::ModelAnimator(shared_ptr<Shader> shader)
 	: Super(ComponentType::Animator), _shader(shader)
 {
-	// TEST
-	_tweenDesc.next.animIndex = rand() % 3;
-	_tweenDesc.tweenSumTime += rand() % 100;
+	
 }
 
 ModelAnimator::~ModelAnimator()
@@ -34,12 +32,21 @@ void ModelAnimator::SetModel(shared_ptr<Model> model)
 
 void ModelAnimator::SetAnimationState(AnimationState newState)
 {
-	if (_tweenDesc.curr.state != newState) // 새로운 상태일 때만 전환
+	int stateAsInt = static_cast<int>(newState);
+
+	if (_tweenDesc.curr.state != stateAsInt) // 새로운 상태일 때만 전환
 	{
 		// 다음 애니메이션 예약
-		_tweenDesc.curr.state = newState;
+		_tweenDesc.next.state = stateAsInt;
 		_tweenDesc.next.animIndex = _model->GetAnimationIndexByState(newState); // 상태에 맞는 애니메이션 인덱스를 가져옴
+		//_tweenDesc.curr.state = stateAsInt;
+		//_tweenDesc.curr.animIndex = _model->GetAnimationIndexByState(newState); // 상태에 맞는 애니메이션 인덱스를 가져옴
 		_tweenDesc.tweenSumTime = 0; // 트윈 시작
+
+		//UpdateTweenData();
+
+		//// 현재 프레임 정보를 렌더러에 전달
+		//_shader->PushTweenData(GetTweenDesc());
 	}
 }
 
@@ -56,9 +63,9 @@ void ModelAnimator::UpdateTweenData()
 	desc.curr.sumTime += DT;
 	{
 		// 현재 재생 중인 애니메이션 가져오기
-		shared_ptr<ModelAnimation> currentAnim = _model->GetAnimationByState(desc.curr.state);
+		shared_ptr<ModelAnimation> currentAnim = _model->GetAnimationByState(static_cast<AnimationState>(desc.curr.state));
 		if (currentAnim)
-		{
+		{        
 			// 프레임 당 시간 계산 (프레임레이트와 재생 속도 고려)
 			float timePerFrame = 1 / (currentAnim->frameRate * desc.curr.speed);
 			// 누적 시간이 프레임 당 시간을 초과하면 다음 프레임으로
@@ -89,7 +96,7 @@ void ModelAnimator::UpdateTweenData()
 		else
 		{
 			// 교체중
-			shared_ptr<ModelAnimation> nextAnim = _model->GetAnimationByState(desc.next.state);
+			shared_ptr<ModelAnimation> nextAnim = _model->GetAnimationByState(static_cast<AnimationState>(desc.next.state));
 			desc.next.sumTime += DT;
 
 			float timePerFrame = 1.f / (nextAnim->frameRate * desc.next.speed);
@@ -104,6 +111,67 @@ void ModelAnimator::UpdateTweenData()
 
 			desc.next.ratio = desc.next.sumTime / timePerFrame;
 		}
+	}
+}
+void ModelAnimator::RenderSingle()
+{
+	if (_model == nullptr)
+		return;
+	if (_texture == nullptr)
+		CreateTexture();
+
+	UpdateTweenData();
+
+	ImGui::InputFloat("Speed", &_tweenDesc.curr.speed, 0.5f, 4.f);
+
+	// 현재 프레임 정보를 렌더러에 전달
+	_shader->PushTweenData(GetTweenDesc());
+
+	// GlobalData
+	_shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
+
+	// Light
+	auto lightObj = SCENE->GetCurrentScene()->GetLight();
+	if (lightObj)
+		_shader->PushLightData(lightObj->GetLight()->GetLightDesc());
+
+	// SRV를 통해 정보 전달
+	_shader->GetSRV("TransformMap")->SetResource(_srv.Get());
+
+	// 본 데이터 준비
+	BoneDesc boneDesc;
+
+	// 모델의 본 갯수 가져오기
+	const uint32 boneCount = _model->GetBoneCount();
+	for (uint32 i = 0; i < boneCount; i++)
+	{
+		shared_ptr<ModelBone> bone = _model->GetBoneByIndex(i);
+		// 각 본의 변환 정보를 본 설명자에 저장
+		boneDesc.transforms[i] = bone->transform;
+	}
+	// 렌더러에 본 데이터 전달
+	_shader->PushBoneData(boneDesc);
+
+	const auto& meshes = _model->GetMeshes();
+	for (auto& mesh : meshes)
+	{
+		if (mesh->material)
+			mesh->material->Update();
+
+		// BoneIndex
+		_shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
+
+		// Transform
+		auto world = GetTransform()->GetWorldMatrix();
+		_shader->PushTransformData(TransformDesc{ world });
+
+		mesh->vertexBuffer->PushData();
+		mesh->indexBuffer->PushData();
+
+		if (Camera::S_IsWireFrame)
+			_shader->DrawIndexed(3, _pass, mesh->indexBuffer->GetCount(), 0, 0);
+		else
+			_shader->DrawIndexed(1, _pass, mesh->indexBuffer->GetCount(), 0, 0);
 	}
 }
 
@@ -159,82 +227,7 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
 	}
 }
 
-void ModelAnimator::RenderSingle()
-{
-	if (_model == nullptr)
-		return;
-	if (_texture == nullptr)
-		CreateTexture();
 
-	UpdateTweenData();
-
-	// Anim Update
-	ImGui::InputInt("AnimIndex", &_tweenDesc.curr.animIndex);
-	//_keyframeDesc.animIndex %= _model->GetAnimationCount();
-
-	static int32 nextAnimIndex = 0;
-	if (ImGui::InputInt("NextAnimIndex", &nextAnimIndex))
-	{
-		nextAnimIndex %= _model->GetAnimationCount();
-		_tweenDesc.ClearNextAnim(); // 기존꺼 밀어주기
-		_tweenDesc.next.animIndex = nextAnimIndex;
-	}
-
-	if (_model->GetAnimationCount() > 0)
-		_tweenDesc.curr.animIndex %= _model->GetAnimationCount();
-
-	ImGui::InputFloat("Speed", &_tweenDesc.curr.speed, 0.5f, 4.f);
-
-	// 현재 프레임 정보를 렌더러에 전달
-	_shader->PushTweenData(GetTweenDesc());
-
-	// GlobalData
-	_shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
-
-	// Light
-	auto lightObj = SCENE->GetCurrentScene()->GetLight();
-	if (lightObj)
-		_shader->PushLightData(lightObj->GetLight()->GetLightDesc());
-
-	// SRV를 통해 정보 전달
-	_shader->GetSRV("TransformMap")->SetResource(_srv.Get());
-
-	// 본 데이터 준비
-	BoneDesc boneDesc;
-
-	// 모델의 본 갯수 가져오기
-	const uint32 boneCount = _model->GetBoneCount();
-	for (uint32 i = 0; i < boneCount; i++)
-	{
-		shared_ptr<ModelBone> bone = _model->GetBoneByIndex(i);
-		// 각 본의 변환 정보를 본 설명자에 저장
-		boneDesc.transforms[i] = bone->transform;
-	}
-	// 렌더러에 본 데이터 전달
-	_shader->PushBoneData(boneDesc);
-
-	const auto& meshes = _model->GetMeshes();
-	for (auto& mesh : meshes)
-	{
-		if (mesh->material)
-			mesh->material->Update();
-
-		// BoneIndex
-		_shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
-
-		// Transform
-		auto world = GetTransform()->GetWorldMatrix();
-		_shader->PushTransformData(TransformDesc{ world });
-
-		mesh->vertexBuffer->PushData();
-		mesh->indexBuffer->PushData();
-
-		if (Camera::S_IsWireFrame)
-			_shader->DrawIndexed(3, _pass, mesh->indexBuffer->GetCount(), 0, 0);
-		else
-			_shader->DrawIndexed(1, _pass, mesh->indexBuffer->GetCount(), 0, 0);
-	}
-}
 
 InstanceID ModelAnimator::GetInstanceID()
 {

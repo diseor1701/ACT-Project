@@ -16,8 +16,11 @@ public:
 	void SetModelAnimator(shared_ptr<ModelAnimator> modelAnimator) { _modelAnimator = modelAnimator; }
 
 private:
-	float _speed = 400.f;
+	float _speed = 5.f;
 	shared_ptr<Model> _player;
 	shared_ptr<ModelAnimator> _modelAnimator;
+	shared_ptr<Transform> _transform;
+
+	AnimationState _currentAnimationState = AnimationState::Idle;
 };
 

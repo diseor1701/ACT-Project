@@ -37,16 +37,20 @@ void ModelAnimator::SetAnimationState(AnimationState newState)
 	if (_tweenDesc.curr.state != stateAsInt) // 새로운 상태일 때만 전환
 	{
 		// 다음 애니메이션 예약
-		_tweenDesc.next.state = stateAsInt;
-		_tweenDesc.next.animIndex = _model->GetAnimationIndexByState(newState); // 상태에 맞는 애니메이션 인덱스를 가져옴
-		//_tweenDesc.curr.state = stateAsInt;
-		//_tweenDesc.curr.animIndex = _model->GetAnimationIndexByState(newState); // 상태에 맞는 애니메이션 인덱스를 가져옴
+		//_tweenDesc.next.state = stateAsInt;
+		//_tweenDesc.next.animIndex = _model->GetAnimationIndexByState(newState); // 상태에 맞는 애니메이션 인덱스를 가져옴
+		
+		_tweenDesc.curr.state = stateAsInt;
+		_tweenDesc.curr.animIndex = _model->GetAnimationIndexByState(newState); // 상태에 맞는 애니메이션 인덱스를 가져옴
 		_tweenDesc.tweenSumTime = 0; // 트윈 시작
 
-		//UpdateTweenData();
-
-		//// 현재 프레임 정보를 렌더러에 전달
-		//_shader->PushTweenData(GetTweenDesc());
+		// 애니메이션이 변경될 때 첫 프레임 강제 설정
+		{
+			_tweenDesc.curr.currFrame = 0;
+			_tweenDesc.curr.nextFrame = 1 % _model->GetAnimationByIndex(_tweenDesc.curr.animIndex)->frameCount;
+			_tweenDesc.curr.sumTime = 0;
+			_tweenDesc.curr.ratio = 0;
+		}
 	}
 }
 

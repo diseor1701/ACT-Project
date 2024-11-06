@@ -79,9 +79,13 @@ void MeshRenderer::RenderSingle()
 	_mesh->GetVertexBuffer()->PushData();
 	_mesh->GetIndexBuffer()->PushData();
 
+	if (_isAlphaBlend) 
+	{
+		shader->DrawIndexed(4, _pass, _mesh->GetIndexBuffer()->GetCount(), 0, 0);	return;
+	}
 	if (Camera::S_IsWireFrame)
 		shader->DrawIndexed(3, _pass, _mesh->GetIndexBuffer()->GetCount(), 0, 0);
-	else
+	else if (!Camera::S_IsWireFrame)
 		shader->DrawIndexed(1, _pass, _mesh->GetIndexBuffer()->GetCount(), 0, 0);
 }
 

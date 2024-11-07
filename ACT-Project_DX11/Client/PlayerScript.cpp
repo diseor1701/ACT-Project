@@ -36,6 +36,21 @@ void PlayerScript::Update()
 		_transform->SetPosition(_transform->GetPosition() + _moveDir * speed * dt);
 
 		targetAnimationState = isRunning ? AnimationState::Run : AnimationState::Walk;
+
+		// 이동 방향에 따라 회전 설정
+		Vec3 targetForward = _moveDir;					// 캐릭터가 이동하려는 방향
+		Vec3 currentForward = _transform->GetLook();	// 캐릭터가 현재 바라보는 방향
+
+		// 두 벡터 사이의 각도를 계산하여 회전
+		float angle = std::acos(currentForward.Dot(targetForward));	// 두 벡터 사이의 각도
+		Vec3 rotationAxis = currentForward.Cross(targetForward);	// 두 벡터가 이루는 평면의 법선벡터
+		rotationAxis.Normalize();
+		if (rotationAxis != Vec3(0.f))	// rotationAxis 0일때 에러방지
+		{
+			// rotationAxis 축을 기준으로 angle만큼 회전하는 쿼터니언 생성하고 오일러 각도로 변환 후 방향 설정
+			Quaternion rotation = Quaternion::CreateFromAxisAngle(rotationAxis, angle);
+			_transform->SetLocalRotation(Transform::ToEulerAngles(rotation));
+		}
 	}
 	else
 	{

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Materials>
     <Material>
-        <Name>Kril.048</Name>
+        <Name>Kril.049</Name>
         <DiffuseFile>M_Shell_AlbedoTransparency_0.png</DiffuseFile>
         <SpecularFile>M_Shell_AlbedoTransparency_0.png</SpecularFile>
         <NormalFile>M_Shell_AlbedoTransparency_0.png</NormalFile>

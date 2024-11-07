@@ -89,11 +89,19 @@ void SnowDemo::Init()
 	}
 
 	// Player
+	auto player = make_shared<GameObject>();
 	{
-		auto player = make_shared<GameObject>();
 		player->GetOrAddTransform()->SetPosition(Vec3(0, 0, 0));
-		player->GetOrAddTransform()->SetLocalRotation(Vec3(0, XMConvertToRadians(180), 0));
+		player->GetOrAddTransform()->SetRotation(Vec3(0, 0, 0));
 		player->GetOrAddTransform()->SetScale(Vec3(0.01f));
+
+		//shared_ptr<Transform> transform = player->GetTransform();
+		//Matrix matWorld = transform->GetWorldMatrix();
+		//Vec3 right = matWorld.Right() * -1;
+		//Vec3 look = matWorld.Backward() * -1;
+		//matWorld.Right(right);
+		//matWorld.Backward(look);
+		//transform->SetWorldMatrix(matWorld);
 
 		shared_ptr<Model> m1 = make_shared<Model>();
 		// Model
@@ -128,6 +136,71 @@ void SnowDemo::Init()
 
 		CUR_SCENE->Add(player);
 		CUR_SCENE->SetPlayer(player);
+	}
+
+	// Debug Object
+	{
+		auto transform = player->GetTransform();
+
+		auto mesh = RESOURCES->Get<Mesh>(L"Cube");
+		// Look 방향 큐브
+		{
+			// Look 방향 표시용 빨간색 재질
+			auto material = make_shared<Material>();
+			material->SetShader(_renderShader);
+			material->GetMaterialDesc().diffuse = Vec4(1.0f, 0.0f, 0.0f, 1.0f);  // 빨간색
+
+			auto lookCube = make_shared<GameObject>();
+			lookCube->GetOrAddTransform()->SetPosition(transform->GetPosition() + transform->GetLook() * 1.5f);
+			lookCube->GetOrAddTransform()->SetScale(Vec3(0.1f, 0.1f, 5.0f));  // Z 방향으로 길쭉하게
+			lookCube->AddComponent(make_shared<MeshRenderer>());
+			{
+				lookCube->GetMeshRenderer()->SetMaterial(material);
+				lookCube->GetMeshRenderer()->SetMesh(mesh);
+				lookCube->GetMeshRenderer()->SetPass(0);
+			}
+			CUR_SCENE->Add(lookCube);
+		}
+
+		// Up 방향 큐브
+		{
+			// Up 방향 표시용 초록색 재질
+			auto material = make_shared<Material>();
+			material->SetShader(_renderShader);
+			material->GetMaterialDesc().diffuse = Vec4(0.0f, 1.0f, 0.0f, 1.0f);  // 초록색
+			
+			auto upCube = make_shared<GameObject>();
+			upCube->GetOrAddTransform()->SetPosition(transform->GetPosition() + transform->GetUp() * 1.5f);
+			upCube->GetOrAddTransform()->SetScale(Vec3(0.1f, 5.0f, 0.1f));  // Y 방향으로 길쭉하게
+			upCube->AddComponent(make_shared<MeshRenderer>());
+			{
+				upCube->GetMeshRenderer()->SetMaterial(material);
+				upCube->GetMeshRenderer()->SetMesh(mesh);
+				upCube->GetMeshRenderer()->SetPass(0);
+			}
+
+			CUR_SCENE->Add(upCube);
+		}
+
+		// Right 방향 큐브
+		{
+			// Right 방향 표시용 파란색 재질
+			auto material = make_shared<Material>();
+			material->SetShader(_renderShader);
+			material->GetMaterialDesc().diffuse = Vec4(0.0f, 0.0f, 1.0f, 1.0f);  // 파란색
+
+			auto rightCube = make_shared<GameObject>();
+			rightCube->GetOrAddTransform()->SetPosition(transform->GetPosition() + transform->GetRight() * 1.5f);
+			rightCube->GetOrAddTransform()->SetScale(Vec3(5.0f, 0.1f, 0.1f));  // X 방향으로 길쭉하게
+			rightCube->AddComponent(make_shared<MeshRenderer>());
+			{
+				rightCube->GetMeshRenderer()->SetMaterial(material);
+				rightCube->GetMeshRenderer()->SetMesh(mesh);
+				rightCube->GetMeshRenderer()->SetPass(0);
+			}
+		
+			CUR_SCENE->Add(rightCube);
+		}
 	}
 
 	// Terrain

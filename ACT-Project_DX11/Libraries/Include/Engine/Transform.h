@@ -19,7 +19,7 @@ public:
 	Vec3 GetLocalScale() { return _localScale; }
 	void SetLocalScale(const Vec3& localScale) { _localScale = localScale; UpdateTransform(); }
 	Vec3 GetLocalRotation() { return _localRotation; }
-	void SetLocalRotation(const Vec3& localRotation) { _localRotation = localRotation; UpdateTransform(); }
+	void SetLocalRotation(const Vec3& localRotation);
 	Vec3 GetLocalPosition() { return _localPosition; }
 	void SetLocalPosition(const Vec3& localPosition) { _localPosition = localPosition; UpdateTransform(); }
 
@@ -31,11 +31,12 @@ public:
 	Vec3 GetPosition() { return _position; }
 	void SetPosition(const Vec3& position);
 
-	Vec3 GetRight() { return _matWorld.Right(); }
-	Vec3 GetUp() { return _matWorld.Up(); }
-	Vec3 GetLook() { return _matWorld.Backward(); }
+	Vec3 GetRight() { Vec3 Right = _matWorld.Right(); Right.Normalize(); return Right; }
+	Vec3 GetUp() { Vec3 Up = _matWorld.Up(); Up.Normalize(); return Up; }
+	Vec3 GetLook() { Vec3 Backward = _matWorld.Backward(); Backward.Normalize(); return Backward; }
 
 	Matrix GetWorldMatrix() { return _matWorld; }
+	void SetWorldMatrix(Matrix matWorld) { _matWorld = matWorld; }
 
 	// °èÃþ °ü°è
 	bool HasParent() { return _parent != nullptr; }

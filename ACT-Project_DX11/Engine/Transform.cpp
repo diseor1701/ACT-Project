@@ -18,7 +18,7 @@ void Transform::Awake()
 void Transform::Update()
 {
 }
-
+// 쿼터니언 -> 오일러 각도 변환
 Vec3 Transform::ToEulerAngles(Quaternion q)
 {
 	Vec3 angles;
@@ -29,9 +29,11 @@ Vec3 Transform::ToEulerAngles(Quaternion q)
 	angles.x = std::atan2(sinr_cosp, cosr_cosp);
 
 	// pitch (y-axis rotation)
-	double sinp = std::sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
-	double cosp = std::sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
-	angles.y = 2 * std::atan2(sinp, cosp) - 3.14159f / 2;
+	double sinp = 2 * (q.w * q.y - q.z * q.x);
+	if (std::abs(sinp) >= 1)
+		angles.y = std::copysign(XM_PI / 2, sinp); // use 90 degrees if out of range
+	else
+		angles.y = std::asin(sinp);
 
 	// yaw (z-axis rotation)
 	double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
@@ -39,6 +41,20 @@ Vec3 Transform::ToEulerAngles(Quaternion q)
 	angles.z = std::atan2(siny_cosp, cosy_cosp);
 
 	return angles;
+}
+
+void Transform::SetLocalRotation(const Vec3& localRotation)
+{
+	// _localRotation의 각도 값을 라디안으로 변환
+	float rotationX = XMConvertToRadians(localRotation.x);
+	float rotationY = XMConvertToRadians(localRotation.y);
+	float rotationZ = XMConvertToRadians(localRotation.z);
+
+	_localRotation.x = rotationX;
+	_localRotation.y = rotationY;
+	_localRotation.z = rotationZ;
+
+	UpdateTransform();
 }
 
 void Transform::UpdateTransform()
@@ -103,6 +119,7 @@ void Transform::SetRotation(const Vec3& worldRotation)
 
 void Transform::SetPosition(const Vec3& worldPosition)
 {
+
 	if (HasParent())
 	{
 		Matrix worldToParentLocalMatrix = _parent->GetWorldMatrix().Invert();

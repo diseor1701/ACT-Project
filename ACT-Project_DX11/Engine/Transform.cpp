@@ -28,12 +28,17 @@ Vec3 Transform::ToEulerAngles(Quaternion q)
 	double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
 	angles.x = std::atan2(sinr_cosp, cosr_cosp);
 
+	//// pitch (y-axis rotation)
+	//double sinp = 2 * (q.w * q.y - q.z * q.x);
+	//if (std::abs(sinp) >= 1)
+	//	angles.y = std::copysign(XM_PI / 2, sinp); // use 90 degrees if out of range
+	//else
+	//	angles.y = std::asin(sinp);
+	
 	// pitch (y-axis rotation)
-	double sinp = 2 * (q.w * q.y - q.z * q.x);
-	if (std::abs(sinp) >= 1)
-		angles.y = std::copysign(XM_PI / 2, sinp); // use 90 degrees if out of range
-	else
-		angles.y = std::asin(sinp);
+	double sinp = std::sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
+	double cosp = std::sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
+	angles.y = 2 * std::atan2(sinp, cosp) - XM_PI / 2;
 
 	// yaw (z-axis rotation)
 	double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
@@ -43,19 +48,19 @@ Vec3 Transform::ToEulerAngles(Quaternion q)
 	return angles;
 }
 
-void Transform::SetLocalRotation(const Vec3& localRotation)
-{
-	// _localRotation의 각도 값을 라디안으로 변환
-	float rotationX = XMConvertToRadians(localRotation.x);
-	float rotationY = XMConvertToRadians(localRotation.y);
-	float rotationZ = XMConvertToRadians(localRotation.z);
-
-	_localRotation.x = rotationX;
-	_localRotation.y = rotationY;
-	_localRotation.z = rotationZ;
-
-	UpdateTransform();
-}
+//void Transform::SetLocalRotation(const Vec3& localRotation)
+//{
+//	// _localRotation의 각도 값을 라디안으로 변환
+//	float rotationX = XMConvertToRadians(localRotation.x);
+//	float rotationY = XMConvertToRadians(localRotation.y);
+//	float rotationZ = XMConvertToRadians(localRotation.z);
+//
+//	_localRotation.x = rotationX;
+//	_localRotation.y = rotationY;
+//	_localRotation.z = rotationZ;
+//
+//	UpdateTransform();
+//}
 
 void Transform::UpdateTransform()
 {

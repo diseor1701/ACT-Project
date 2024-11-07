@@ -95,14 +95,6 @@ void SnowDemo::Init()
 		player->GetOrAddTransform()->SetRotation(Vec3(0, 0, 0));
 		player->GetOrAddTransform()->SetScale(Vec3(0.01f));
 
-		//shared_ptr<Transform> transform = player->GetTransform();
-		//Matrix matWorld = transform->GetWorldMatrix();
-		//Vec3 right = matWorld.Right() * -1;
-		//Vec3 look = matWorld.Backward() * -1;
-		//matWorld.Right(right);
-		//matWorld.Backward(look);
-		//transform->SetWorldMatrix(matWorld);
-
 		shared_ptr<Model> m1 = make_shared<Model>();
 		// Model
 		{
@@ -112,6 +104,11 @@ void SnowDemo::Init()
 			m1->ReadAnimation(L"Player/Idle", AnimationState::Idle);
 			m1->ReadAnimation(L"Player/Walk", AnimationState::Walk);
 			m1->ReadAnimation(L"Player/Run", AnimationState::Run);
+
+			//m1->ReadModel(L"Kachujin/Kachujin");
+			//m1->ReadMaterial(L"Kachujin/Kachujin");
+			//m1->ReadAnimation(L"Kachujin/Idle", AnimationState::Idle);
+			//m1->ReadAnimation(L"Kachujin/Run", AnimationState::Walk);
 
 			//m1->ReadAnimation(L"Player/Crab_Atk_Combo1");
 			//m1->ReadAnimation(L"Player/Crab_Atk_Combo2");

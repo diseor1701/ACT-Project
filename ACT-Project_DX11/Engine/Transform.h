@@ -31,9 +31,9 @@ public:
 	Vec3 GetPosition() { return _position; }
 	void SetPosition(const Vec3& position);
 
-	Vec3 GetRight() { Vec3 Right = _matWorld.Right(); Right.Normalize(); return Right; }
-	Vec3 GetUp() { Vec3 Up = _matWorld.Up(); Up.Normalize(); return Up; }
-	Vec3 GetLook() { Vec3 Backward = _matWorld.Backward(); Backward.Normalize(); return Backward; }
+	Vec3 GetRight();
+	Vec3 GetUp(); 
+	Vec3 GetLook();
 
 	Matrix GetWorldMatrix() { return _matWorld; }
 	void SetWorldMatrix(Matrix matWorld) { _matWorld = matWorld; }

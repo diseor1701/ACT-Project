@@ -70,7 +70,6 @@ void MeshRenderer::RenderSingle()
 	// Light
 	_material->Update();
 
-
 	// Transform
 	auto world = GetTransform()->GetWorldMatrix();
 	shader->PushTransformData(TransformDesc{ world });

@@ -139,3 +139,31 @@ void Transform::SetPosition(const Vec3& worldPosition)
 		SetLocalPosition(worldPosition);
 	}
 }
+
+Vec3 Transform::GetRight()
+{
+	Vec3 right = _matWorld.Right();
+	right.x = std::abs(right.x) < 1e-5 ? 0.0f : right.x;
+	right.y = std::abs(right.y) < 1e-5 ? 0.0f : right.y;
+	right.z = std::abs(right.z) < 1e-5 ? 0.0f : right.z;
+	right.Normalize();
+	return right;
+}
+Vec3 Transform::GetUp()
+{
+	Vec3 up = _matWorld.Up();
+	up.x = std::abs(up.x) < 1e-5 ? 0.0f : up.x;
+	up.y = std::abs(up.y) < 1e-5 ? 0.0f : up.y;
+	up.z = std::abs(up.z) < 1e-5 ? 0.0f : up.z;
+	up.Normalize();
+	return up;
+}
+Vec3 Transform::GetLook()
+{
+	Vec3 backward = _matWorld.Backward(); 
+	backward.x = std::abs(backward.x) < 1e-5 ? 0.0f : backward.x;
+	backward.y = std::abs(backward.y) < 1e-5 ? 0.0f : backward.y;
+	backward.z = std::abs(backward.z) < 1e-5 ? 0.0f : backward.z;
+	backward.Normalize();
+	return backward;
+}

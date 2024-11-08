@@ -48,6 +48,14 @@ MeshOutput VS_Mesh(VertexTextureNormal input)
     return output;
 }
 
+MeshOutput VS_MeshColor(VertexColor input)
+{
+    MeshOutput output;
+    output.position = input.position;
+
+    return output;
+}
+
 // ************** InstancingModelRender ****************
 
 struct InstancingVertexModel

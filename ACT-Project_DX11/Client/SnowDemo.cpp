@@ -90,11 +90,20 @@ void SnowDemo::Init()
 
 	// Player
 	auto player = make_shared<GameObject>();
+
+	// Debug Test
+	auto lookCube = make_shared<GameObject>();
+	auto upCube = make_shared<GameObject>();
+	auto rightCube = make_shared<GameObject>();
+
 	{
 		player->GetOrAddTransform()->SetPosition(Vec3(0, 0, 0));
-		player->GetOrAddTransform()->SetRotation(Vec3(0, 0, 0));
+		player->GetOrAddTransform()->SetLocalRotation(Vec3(0, 0, 0)); // XMConvertToRadians()
 		player->GetOrAddTransform()->SetScale(Vec3(0.01f));
 
+		Vec3 a = player->GetTransform()->GetRotation();
+		Vec3 l = player->GetTransform()->GetLook();
+		Vec3 r = player->GetTransform()->GetRight();
 		shared_ptr<Model> m1 = make_shared<Model>();
 		// Model
 		{
@@ -104,16 +113,10 @@ void SnowDemo::Init()
 			m1->ReadAnimation(L"Player/Idle", AnimationState::Idle);
 			m1->ReadAnimation(L"Player/Walk", AnimationState::Walk);
 			m1->ReadAnimation(L"Player/Run", AnimationState::Run);
-
-			//m1->ReadModel(L"Kachujin/Kachujin");
-			//m1->ReadMaterial(L"Kachujin/Kachujin");
-			//m1->ReadAnimation(L"Kachujin/Idle", AnimationState::Idle);
-			//m1->ReadAnimation(L"Kachujin/Run", AnimationState::Walk);
-
-			//m1->ReadAnimation(L"Player/Crab_Atk_Combo1");
-			//m1->ReadAnimation(L"Player/Crab_Atk_Combo2");
-			//m1->ReadAnimation(L"Player/Crab_Atk_Combo3");
-			//m1->ReadAnimation(L"Player/Crab_Atk_Combo4");
+			m1->ReadAnimation(L"Player/Crab_Atk_Combo1", AnimationState::Attack1);
+			m1->ReadAnimation(L"Player/Crab_Atk_Combo2", AnimationState::Attack2);
+			m1->ReadAnimation(L"Player/Crab_Atk_Combo3", AnimationState::Attack3);
+			m1->ReadAnimation(L"Player/Crab_Atk_Combo4", AnimationState::Attack4);
 
 			//m1->ReadAnimation(L"Player/Crab_Death");
 			//m1->ReadAnimation(L"Player/Crab_GetUp");
@@ -129,6 +132,12 @@ void SnowDemo::Init()
 		shared_ptr<PlayerScript> playerScript = make_shared<PlayerScript>();
 		playerScript->SetPlayer(m1);
 		playerScript->SetModelAnimator(ma1);
+
+		// Debug Test
+		playerScript->_look = lookCube;
+		playerScript->_up = upCube;
+		playerScript->_right = rightCube;
+
 		player->AddComponent(playerScript);
 
 		CUR_SCENE->Add(player);
@@ -145,10 +154,12 @@ void SnowDemo::Init()
 			// Look 방향 표시용 빨간색 재질
 			auto material = make_shared<Material>();
 			material->SetShader(_renderShader);
-			material->GetMaterialDesc().diffuse = Vec4(1.0f, 0.0f, 0.0f, 1.0f);  // 빨간색
+			MaterialDesc& desc = material->GetMaterialDesc();
+			desc.ambient = Vec4(1.f);
+			desc.diffuse = Vec4(1.0f, 0.0f, 0.0f, 1.0f); // 빨간색
+			desc.specular = Vec4(1.f);
 
-			auto lookCube = make_shared<GameObject>();
-			lookCube->GetOrAddTransform()->SetPosition(transform->GetPosition() + transform->GetLook() * 1.5f);
+			lookCube->GetOrAddTransform()->SetPosition(transform->GetPosition() + transform->GetLook() * 2.5f);
 			lookCube->GetOrAddTransform()->SetScale(Vec3(0.1f, 0.1f, 5.0f));  // Z 방향으로 길쭉하게
 			lookCube->AddComponent(make_shared<MeshRenderer>());
 			{
@@ -164,10 +175,12 @@ void SnowDemo::Init()
 			// Up 방향 표시용 초록색 재질
 			auto material = make_shared<Material>();
 			material->SetShader(_renderShader);
-			material->GetMaterialDesc().diffuse = Vec4(0.0f, 1.0f, 0.0f, 1.0f);  // 초록색
+			MaterialDesc& desc = material->GetMaterialDesc();
+			desc.ambient = Vec4(1.f);
+			desc.diffuse = Vec4(0.0f, 1.0f, 0.0f, 1.0f);  // 초록색
+			desc.specular = Vec4(1.f);
 			
-			auto upCube = make_shared<GameObject>();
-			upCube->GetOrAddTransform()->SetPosition(transform->GetPosition() + transform->GetUp() * 1.5f);
+			upCube->GetOrAddTransform()->SetPosition(transform->GetPosition() + transform->GetUp() * 2.5f);
 			upCube->GetOrAddTransform()->SetScale(Vec3(0.1f, 5.0f, 0.1f));  // Y 방향으로 길쭉하게
 			upCube->AddComponent(make_shared<MeshRenderer>());
 			{
@@ -184,10 +197,12 @@ void SnowDemo::Init()
 			// Right 방향 표시용 파란색 재질
 			auto material = make_shared<Material>();
 			material->SetShader(_renderShader);
-			material->GetMaterialDesc().diffuse = Vec4(0.0f, 0.0f, 1.0f, 1.0f);  // 파란색
+			MaterialDesc& desc = material->GetMaterialDesc();
+			desc.ambient = Vec4(1.f);
+			desc.diffuse = Vec4(0.0f, 0.0f, 1.0f, 1.0f);  // 파란색
+			desc.specular = Vec4(1.f);
 
-			auto rightCube = make_shared<GameObject>();
-			rightCube->GetOrAddTransform()->SetPosition(transform->GetPosition() + transform->GetRight() * 1.5f);
+			rightCube->GetOrAddTransform()->SetPosition(transform->GetPosition() + transform->GetRight() * 2.5f);
 			rightCube->GetOrAddTransform()->SetScale(Vec3(5.0f, 0.1f, 0.1f));  // X 방향으로 길쭉하게
 			rightCube->AddComponent(make_shared<MeshRenderer>());
 			{
